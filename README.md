@@ -5,7 +5,7 @@
 ## Installation:
 
 1. Clone the repository.
-   `git clone https://github.com/tastyFr/PianoTiles2-Utilities.git`
+   `https://github.com/tastyFr/ultimatepianotiles2moddingbot.git`
 2. Install NPM packages.
    `npm i`
 3. Set your private Discord bot token in the `.env` file.
