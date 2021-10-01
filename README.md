@@ -1,6 +1,6 @@
 # Ultimate Piano Tiles 2 Modding Bot
 
-[Piano Tiles 2 Utilities](https://github.com/tastyFr/PianoTiles2-Utilities) coded in JavaScript with [discord.js](https://discord.js.org) using the [Commando](https://github.com/discordjs/Commando) framework.
+[Piano Tiles 2 Utilities](https://github.com/tastyFr/PianoTiles2-Utilities) coded in JavaScript with [discord.js (v12.5.3)](https://discord.js.org) using the [Commando](https://github.com/discordjs/Commando) framework.
 
 ## Installation:
 
