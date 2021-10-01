@@ -63,9 +63,7 @@ sixth-beat  quarter-beat  third-beat  half-beat  beat\`\`\`
 
       attachment = message.attachments.first().url;
 
-      const file = createWriteStream(
-        join(__dirname, '..', '..', '..', 'temp', `${Date.now()}.mid`),
-      );
+      const file = createWriteStream(join(__dirname, '..', '..', '..', 'temp', `${Date.now()}.mid`));
 
       https
         .get(attachment, response => {
@@ -78,39 +76,19 @@ sixth-beat  quarter-beat  third-beat  half-beat  beat\`\`\`
             output = output.split(/\r|\n/).filter(text => text);
             return (
               `\`\`\`${output[output.length - 1]}\`\`\``
-              || `\`\`\`Unknown error has occurred!\`\`\`
+              || `\`\`\`Unknown error has occurred!
 
-Either no reason or this command cannot process large MIDI file!`
+Either no reason or this command cannot process large MIDI file!\`\`\``
             );
           };
 
           const newFileName = `${parse(attachment).name}_NEW.mid`;
-          const newFilePath = join(
-            __dirname,
-            '..',
-            '..',
-            '..',
-            'temp',
-            newFileName,
-          );
+          const newFilePath = join(__dirname, '..', '..', '..', 'temp', newFileName);
 
           execFile(
-            join(
-              __dirname,
-              '..',
-              '..',
-              'features',
-              'executables',
-              'midiquantize',
-            ),
+            join(__dirname, '..', '..', 'features', 'executables', 'midiquantize'),
 
-            [
-              file.path,
-              newFilePath,
-              Object.values(args)[0],
-              Object.values(args)[1],
-              '-f',
-            ],
+            [file.path, newFilePath, Object.values(args)[0], Object.values(args)[1], '-f'],
 
             (error, stdout) => {
               output = String(stdout);
@@ -167,20 +145,14 @@ Either no reason or this command cannot process large MIDI file!`
     function cleanup(file, newFilePath) {
       unlink(file.path, err => {
         if (err) {
-          sendErrorMessage(
-            'Couldn\'t delete file from temporary folder. Contact `tastyFr#3429`.',
-            message,
-          );
+          sendErrorMessage('Couldn\'t delete file from temporary folder. Contact `tastyFr#3429`.', message);
           throw err;
         }
       });
       if (existsSync(newFilePath)) {
         unlink(newFilePath, err => {
           if (err) {
-            sendErrorMessage(
-              'Couldn\'t delete file from temporary folder. Contact `tastyFr#3429`.',
-              message,
-            );
+            sendErrorMessage('Couldn\'t delete file from temporary folder. Contact `tastyFr#3429`.', message);
             throw err;
           }
         });

@@ -37,9 +37,7 @@ module.exports = class MidiInfoCommand extends Command {
 
       attachment = message.attachments.first().url;
 
-      const file = createWriteStream(
-        join(__dirname, '..', '..', '..', 'temp', `${Date.now()}.mid`),
-      );
+      const file = createWriteStream(join(__dirname, '..', '..', '..', 'temp', `${Date.now()}.mid`));
 
       https
         .get(attachment, response => {
@@ -52,9 +50,9 @@ module.exports = class MidiInfoCommand extends Command {
             output = output.split(/\r|\n/).filter(text => text);
             return (
               output[output.length - 1]
-              || `\`\`\`Unknown error has occurred!\`\`\`
+              || `\`\`\`Unknown error has occurred!
 
-Either no reason or this command cannot process large MIDI file!`
+Either no reason or this command cannot process large MIDI file!\`\`\``
             );
           };
 
@@ -125,10 +123,7 @@ Either no reason or this command cannot process large MIDI file!`
     function cleanup(file) {
       unlink(file, err => {
         if (err) {
-          sendErrorMessage(
-            'Couldn\'t delete file from temporary folder. Contact `tastyFr#3429`.',
-            message,
-          );
+          sendErrorMessage('Couldn\'t delete file from temporary folder. Contact `tastyFr#3429`.', message);
           throw err;
         }
       });

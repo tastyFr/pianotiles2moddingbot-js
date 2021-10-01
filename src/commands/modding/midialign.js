@@ -47,9 +47,7 @@ module.exports = class MidiAlignCommand extends Command {
 
       attachment = message.attachments.first().url;
 
-      const file = createWriteStream(
-        join(__dirname, '..', '..', '..', 'temp', `${Date.now()}.mid`),
-      );
+      const file = createWriteStream(join(__dirname, '..', '..', '..', 'temp', `${Date.now()}.mid`));
 
       https
         .get(attachment, response => {
@@ -62,23 +60,14 @@ module.exports = class MidiAlignCommand extends Command {
             output = output.split(/\r|\n/).filter(text => text);
             return (
               output[output.length - 1]
-              || `\`\`\`Unknown error has occurred!\`\`\`
+              || `\`\`\`Unknown error has occurred!
 
-Either no reason or this command cannot process large MIDI file!`
+Either no reason or this command cannot process large MIDI file!\`\`\``
             );
           };
 
-          const newFileName = `${parse(attachment).name}_${
-            Object.values(args)[0]
-          }BPM.mid`;
-          const newFilePath = join(
-            __dirname,
-            '..',
-            '..',
-            '..',
-            'temp',
-            newFileName,
-          );
+          const newFileName = `${parse(attachment).name}_${Object.values(args)[0]}BPM.mid`;
+          const newFilePath = join(__dirname, '..', '..', '..', 'temp', newFileName);
 
           execFile(
             join(__dirname, '..', '..', 'features', 'executables', 'midialign'),
@@ -140,20 +129,14 @@ Either no reason or this command cannot process large MIDI file!`
     function cleanup(file, newFilePath) {
       unlink(file.path, err => {
         if (err) {
-          sendErrorMessage(
-            'Couldn\'t delete file from temporary folder. Contact `tastyFr#3429`.',
-            message,
-          );
+          sendErrorMessage('Couldn\'t delete file from temporary folder. Contact `tastyFr#3429`.', message);
           throw err;
         }
       });
       if (existsSync(newFilePath)) {
         unlink(newFilePath, err => {
           if (err) {
-            sendErrorMessage(
-              'Couldn\'t delete file from temporary folder. Contact `tastyFr#3429`.',
-              message,
-            );
+            sendErrorMessage('Couldn\'t delete file from temporary folder. Contact `tastyFr#3429`.', message);
             throw err;
           }
         });

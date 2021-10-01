@@ -22,9 +22,7 @@ module.exports = class Midi2JsonCommand extends Command {
 \`<IR track>\` - Ignore rests (\`Q-Y\`) on track number
 
 (Credits to **Volian0** for [midi2json](https://github.com/Volian0/midi2json) source code!)`,
-      examples: [
-        'pt2::midi2json *MIDI File* <Q tick> <DT track> <DT tick> <IR track>',
-      ],
+      examples: ['pt2::midi2json *MIDI File* <Q tick> <DT track> <DT tick> <IR track>'],
       args: [
         {
           key: 'Q tick',
@@ -33,20 +31,17 @@ module.exports = class Midi2JsonCommand extends Command {
         },
         {
           key: 'DT track',
-          prompt:
-            'type the track number to put double tiles on. Type `0` to disable.\n',
+          prompt: 'type the track number to put double tiles on. Type `0` to disable.\n',
           type: 'float',
         },
         {
           key: 'DT tick',
-          prompt:
-            'type the MIDI tick value for double tiles. Type `0` to disable.\n',
+          prompt: 'type the MIDI tick value for double tiles. Type `0` to disable.\n',
           type: 'float',
         },
         {
           key: 'IR track',
-          prompt:
-            'type the MIDI track number to disable rests on. Type `0` to disable.\n',
+          prompt: 'type the MIDI track number to disable rests on. Type `0` to disable.\n',
           type: 'float',
         },
       ],
@@ -86,22 +81,16 @@ module.exports = class Midi2JsonCommand extends Command {
             output = output.split(/\r|\n/).filter(text => text);
             return (
               output[output.length - 1]
-              || `\`\`\`Unknown error has occurred!\`\`\`
+              || `\`\`\`Unknown error has occurred!
 
-Either no reason or this command cannot process large MIDI file!`
+Either no reason or this command cannot process large MIDI file!\`\`\``
             );
           };
 
           execFile(
             join(__dirname, '..', '..', 'features', 'executables', 'midi2json'),
 
-            [
-              file.path,
-              args['Q tick'],
-              args['DT track'],
-              args['DT track'],
-              args['IR track'],
-            ],
+            [file.path, args['Q tick'], args['DT track'], args['DT track'], args['IR track']],
 
             (error, stdout) => {
               output = String(stdout);
@@ -130,12 +119,9 @@ Either no reason or this command cannot process large MIDI file!`
                 message.channel.stopTyping(true);
 
                 message
-                  .reply(
-                    `\n\nExecution time: ${elapsed}\n\`\`\`${output}\`\`\``,
-                    {
-                      files: [newName],
-                    },
-                  )
+                  .reply(`\n\nExecution time: ${elapsed}\n\`\`\`${output}\`\`\``, {
+                    files: [newName],
+                  })
                   .then(() => cleanup(newName));
               } else if (output.endsWith('Bad MIDI data input\n')) {
                 sendErrorMessage('```Not a valid MIDI file.```', message);
@@ -164,10 +150,7 @@ Either no reason or this command cannot process large MIDI file!`
       if (existsSync(newName)) {
         unlink(newName, err => {
           if (err) {
-            sendErrorMessage(
-              'Couldn\'t delete file from temporary folder. Contact `tastyFr#3429`.',
-              message,
-            );
+            sendErrorMessage('Couldn\'t delete file from temporary folder. Contact `tastyFr#3429`.', message);
             throw err;
           }
         });
