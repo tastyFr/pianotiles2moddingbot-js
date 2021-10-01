@@ -9,12 +9,10 @@ const {CommandoClient, FriendlyError} = require('discord.js-commando');
 const {keepAlive} = require('./server');
 
 // Cleanup temporary files from a temp folder.
-readdirSync(join(__dirname, '..', 'temp')).forEach(file =>
-  unlinkSync(join(__dirname, '..', 'temp', file)),
-);
+readdirSync(join(__dirname, '..', 'temp')).forEach(file => unlinkSync(join(__dirname, '..', 'temp', file)));
 
 const client = new CommandoClient({
-  commandPrefix: 'pt2:::',
+  commandPrefix: process.env.PREFIX,
   owner: '241874942436704258',
   disableMentions: 'all',
 });
