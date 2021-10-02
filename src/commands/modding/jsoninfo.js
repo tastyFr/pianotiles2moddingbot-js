@@ -135,6 +135,8 @@ module.exports = class JSONInfoCommand extends Command {
       });
     };
 
+    message.channel.startTyping(9999);
+
     function process(data, songName, now) {
       SongUtilities.checkErrors(data, args[0].BPMs)
         .then(result => {
@@ -159,8 +161,6 @@ module.exports = class JSONInfoCommand extends Command {
             const arrSpeeds = [];
 
             for (let i = 0; i < args.laps - 1; i += 1) {
-              message.channel.startTyping(9999);
-
               bpm = SongUtilities.getNewBPM(
                 bpm,
                 baseBeats[2],
