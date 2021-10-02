@@ -12,7 +12,14 @@
     "import/order": [
       "error",
       {
-        "groups": ["builtin", "external", "internal", "index", "sibling", "parent"],
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "index",
+          "sibling",
+          "parent"
+        ],
         "alphabetize": {
           "order": "asc"
         }
@@ -26,6 +33,7 @@
         "code": 120
       }
     ],
+    "no-implicit-coercion": "off",
     "prefer-destructuring": [
       "error",
       {
