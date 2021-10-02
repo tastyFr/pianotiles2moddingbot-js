@@ -63,68 +63,93 @@ sixth-beat  quarter-beat  third-beat  half-beat  beat\`\`\`
 
       attachment = message.attachments.first().url;
 
-      const file = createWriteStream(join(__dirname, '..', '..', '..', 'temp', `${Date.now()}.mid`));
+      const file = createWriteStream(
+        join(__dirname, '..', '..', '..', 'temp', `${Date.now()}.mid`),
+        {highWaterMark: 65536},
+      );
+
+      message.channel.startTyping(9999);
 
       https
         .get(attachment, response => {
-          response.pipe(file);
+          response.pipe(file).on('finish', () => {
+            let output = '';
+            let errorMessage = '';
 
-          let output = '';
-          let errorMessage = '';
-
-          const getErrorMessage = () => {
-            output = output.split(/\r|\n/).filter(text => text);
-            return (
-              `\`\`\`${output[output.length - 1]}\`\`\``
-              || `\`\`\`Unknown error has occurred!
+            const getErrorMessage = () => {
+              output = output.split(/\r|\n/).filter(text => text);
+              return (
+                `\`\`\`${output[output.length - 1]}\`\`\``
+                || `\`\`\`Unknown error has occurred!
 
 Either no reason or this command cannot process large MIDI file!\`\`\``
+              );
+            };
+
+            const newFileName = `${parse(attachment).name}_NEW.mid`;
+            const newFilePath = join(
+              __dirname,
+              '..',
+              '..',
+              '..',
+              'temp',
+              newFileName,
             );
-          };
 
-          const newFileName = `${parse(attachment).name}_NEW.mid`;
-          const newFilePath = join(__dirname, '..', '..', '..', 'temp', newFileName);
+            execFile(
+              join(
+                __dirname,
+                '..',
+                '..',
+                'features',
+                'executables',
+                'midiquantize',
+              ),
 
-          execFile(
-            join(__dirname, '..', '..', 'features', 'executables', 'midiquantize'),
+              [
+                file.path,
+                newFilePath,
+                Object.values(args)[0],
+                Object.values(args)[1],
+                '-f',
+              ],
 
-            [file.path, newFilePath, Object.values(args)[0], Object.values(args)[1], '-f'],
+              (error, stdout) => {
+                output = String(stdout);
 
-            (error, stdout) => {
-              output = String(stdout);
+                if (error) {
+                  errorMessage = String(error);
+                  console.error(errorMessage);
+                }
+              },
+            ).on('close', () => {
+              const elapsed = prettyMilliseconds(performance.now() - now, {
+                secondsDecimalDigits: 0,
+              });
 
-              if (error) {
-                errorMessage = String(error);
-                console.error(errorMessage);
+              message.channel.stopTyping(true);
+
+              if (errorMessage) {
+                sendErrorMessage(getErrorMessage(), message);
+                cleanup(file, newFilePath);
+              } else {
+                message.reply(`\n\nExecution time: ${elapsed}`);
+
+                message
+                  .say({files: [newFilePath]})
+                  .then(() => {
+                    cleanup(file, newFilePath);
+                  })
+                  .catch(err => {
+                    sendErrorMessage(
+                      'Couldn\'t send file to Discord server. The bot doesn\'t have `ATTACH_FILES` perms enabled.',
+                      message,
+                    );
+                    cleanup(file, newFilePath);
+                    throw err;
+                  });
               }
-            },
-          ).on('close', () => {
-            const elapsed = prettyMilliseconds(performance.now() - now, {
-              secondsDecimalDigits: 0,
             });
-
-            message.channel.stopTyping(true);
-
-            if (errorMessage) {
-              sendErrorMessage(getErrorMessage(), message);
-              cleanup(file, newFilePath);
-            } else {
-              message.reply(`\n\nExecution time: ${elapsed}`);
-
-              message
-                .say({files: [newFilePath]})
-                .then(() => {
-                  cleanup(file, newFilePath);
-                })
-                .catch(err => {
-                  sendErrorMessage(
-                    'Couldn\'t send file to Discord server. The bot doesn\'t have `ATTACH_FILES` perms enabled.',
-                    message,
-                  );
-                  cleanup(file, newFilePath);
-                  throw err;
-                });
-            }
           });
         })
 
@@ -145,14 +170,20 @@ Either no reason or this command cannot process large MIDI file!\`\`\``
     function cleanup(file, newFilePath) {
       unlink(file.path, err => {
         if (err) {
-          sendErrorMessage('Couldn\'t delete file from temporary folder. Contact `tastyFr#3429`.', message);
+          sendErrorMessage(
+            'Couldn\'t delete file from temporary folder. Contact `tastyFr#3429`.',
+            message,
+          );
           throw err;
         }
       });
       if (existsSync(newFilePath)) {
         unlink(newFilePath, err => {
           if (err) {
-            sendErrorMessage('Couldn\'t delete file from temporary folder. Contact `tastyFr#3429`.', message);
+            sendErrorMessage(
+              'Couldn\'t delete file from temporary folder. Contact `tastyFr#3429`.',
+              message,
+            );
             throw err;
           }
         });

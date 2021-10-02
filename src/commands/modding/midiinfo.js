@@ -32,76 +32,91 @@ module.exports = class MidiInfoCommand extends Command {
 
     let attachment = '';
 
+    message.channel.startTyping(9999);
+
     try {
       const now = performance.now();
 
       attachment = message.attachments.first().url;
 
-      const file = createWriteStream(join(__dirname, '..', '..', '..', 'temp', `${Date.now()}.mid`));
+      const file = createWriteStream(
+        join(__dirname, '..', '..', '..', 'temp', `${Date.now()}.mid`),
+        {highWaterMark: 65536},
+      );
 
       https
         .get(attachment, response => {
-          response.pipe(file);
+          response.pipe(file).on('finish', () => {
+            let output = '';
+            let errorMessage = '';
 
-          let output = '';
-          let errorMessage = '';
-
-          const getErrorMessage = () => {
-            output = output.split(/\r|\n/).filter(text => text);
-            return (
-              output[output.length - 1]
-              || `\`\`\`Unknown error has occurred!
+            const getErrorMessage = () => {
+              output = output.split(/\r|\n/).filter(text => text);
+              return (
+                output[output.length - 1]
+                || `\`\`\`Unknown error has occurred!
 
 Either no reason or this command cannot process large MIDI file!\`\`\``
-            );
-          };
+              );
+            };
 
-          execFile(
-            join(__dirname, '..', '..', 'features', 'executables', 'midiinfo'),
+            execFile(
+              join(
+                __dirname,
+                '..',
+                '..',
+                'features',
+                'executables',
+                'midiinfo',
+              ),
 
-            [file.path],
+              [file.path],
 
-            (error, stdout) => {
-              output = String(stdout);
+              (error, stdout) => {
+                output = String(stdout);
 
-              if (error) {
-                errorMessage = String(error);
-                console.error(errorMessage);
-              }
-            },
-          ).on('close', () => {
-            const elapsed = prettyMilliseconds(performance.now() - now, {
-              secondsDecimalDigits: 0,
-            });
-
-            message.channel.stopTyping(true);
-
-            if (errorMessage) {
-              sendErrorMessage(getErrorMessage(), message);
-            } else {
-              const embed = {
-                color: Math.floor(Math.random() * 0xffffff).toString(16),
-                fields: [],
-                footer: {
-                  text: `Execution time: ${elapsed}`,
-                },
-              };
-
-              const json = JSON.parse(output);
-
-              Object.getOwnPropertyNames(json).forEach((propertyName, val) => {
-                embed.fields.push({
-                  name: propertyName,
-                  value:
-                    propertyName === 'Notes:'
-                      ? Number(Object.values(json)[val]).toLocaleString()
-                      : Object.values(json)[val],
-                });
+                if (error) {
+                  errorMessage = String(error);
+                  console.error(errorMessage);
+                }
+              },
+            ).on('close', () => {
+              const elapsed = prettyMilliseconds(performance.now() - now, {
+                secondsDecimalDigits: 0,
               });
 
-              message.replyEmbed(embed);
-              cleanup(file.path);
-            }
+              message.channel.stopTyping(true);
+
+              if (errorMessage) {
+                sendErrorMessage(getErrorMessage(), message);
+                cleanup(file.path);
+              } else {
+                const embed = {
+                  color: Math.floor(Math.random() * 0xffffff).toString(16),
+                  fields: [],
+                  footer: {
+                    text: `Execution time: ${elapsed}`,
+                  },
+                };
+
+                const json = JSON.parse(output);
+
+                Object.getOwnPropertyNames(json).forEach(
+                  (propertyName, val) => {
+                    embed.fields.push({
+                      name: propertyName,
+                      value:
+                        propertyName === 'Notes:'
+                          ? Number(Object.values(json)[val]).toLocaleString()
+                          : Object.values(json)[val],
+                    });
+                  },
+                );
+
+                message.replyEmbed(embed);
+                cleanup(file.path);
+              }
+            });
           });
         })
 
@@ -123,7 +138,10 @@ Either no reason or this command cannot process large MIDI file!\`\`\``
     function cleanup(file) {
       unlink(file, err => {
         if (err) {
-          sendErrorMessage('Couldn\'t delete file from temporary folder. Contact `tastyFr#3429`.', message);
+          sendErrorMessage(
+            'Couldn\'t delete file from temporary folder. Contact `tastyFr#3429`.',
+            message,
+          );
           throw err;
         }
       });

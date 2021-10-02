@@ -32,6 +32,8 @@ module.exports = class Json2MidiCommand extends Command {
       });
     };
 
+    message.channel.startTyping(9999);
+
     let attachment = '';
 
     try {
@@ -50,83 +52,81 @@ module.exports = class Json2MidiCommand extends Command {
 
       https
         .get(attachment, response => {
-          response.pipe(file);
+          response.pipe(file).on('finish', () => {
+            let output = '';
+            let errorMessage = '';
 
-          message.channel.startTyping(9999);
+            const getErrorMessage = () => {
+              output = output.split(/\r|\n/).filter(text => text);
+              return output[output.length - 1];
+            };
 
-          let output = '';
-          let errorMessage = '';
+            execFile(
+              path.join(
+                __dirname,
+                '..',
+                '..',
+                'features',
+                'executables',
+                'json2midi',
+              ),
 
-          const getErrorMessage = () => {
-            output = output.split(/\r|\n/).filter(text => text);
-            return output[output.length - 1];
-          };
+              [file.path, ...args],
 
-          execFile(
-            path.join(
-              __dirname,
-              '..',
-              '..',
-              'features',
-              'executables',
-              'json2midi',
-            ),
+              (error, stdout) => {
+                output = String(stdout);
 
-            [file.path, ...args],
-
-            (error, stdout) => {
-              output = String(stdout);
-
-              if (error) {
-                errorMessage
-                  = output.lastIndexOf('std::exception') > 0
-                    ? 'Couldn\'t convert into MIDI file!\n\nTry typing <bpm> <baseBeats> ... ...'
-                    : getErrorMessage();
-              }
-            },
-          ).on('close', () => {
-            const midiFile = file.path.replace(
-              new RegExp(`${path.extname(file.path)}$`),
-              '.mid',
-            );
-
-            if (errorMessage) {
-              sendErrorMessage(`\`\`\`${errorMessage}\`\`\``, message);
-
-              cleanup(file.path);
-              cleanup(midiFile);
-            } else {
-              const elapsed = prettyMilliseconds(performance.now() - now, {
-                secondsDecimalDigits: 0,
-              });
-
-              if (existsSync(midiFile)) {
-                message.channel.stopTyping(true);
-
-                if (output) {
-                  message.replyEmbed({
-                    title: 'WARNINGS:',
-                    color: Math.floor(Math.random() * 0xffffff).toString(16),
-                    description: `\`\`\`${output}\`\`\``,
-                    footer: `Execution time: ${elapsed}`,
-                  });
-                  message.say({
-                    files: [midiFile],
-                  });
-                } else {
-                  message
-                    .reply(`\n\nExecution time: ${elapsed}`, {
-                      files: [midiFile],
-                    })
-                    .then(() => {
-                      cleanup(file.path);
-                      cleanup(midiFile);
-                    });
+                if (error) {
+                  errorMessage
+                    = output.lastIndexOf('std::exception') > 0
+                      ? 'Couldn\'t convert into MIDI file!\n\nTry typing <bpm> <baseBeats> ... ...'
+                      : getErrorMessage();
                 }
+              },
+            ).on('close', () => {
+              const midiFile = file.path.replace(
+                new RegExp(`${path.extname(file.path)}$`),
+                '.mid',
+              );
+
+              if (errorMessage) {
+                sendErrorMessage(`\`\`\`${errorMessage}\`\`\``, message);
+
+                cleanup(file.path);
+                cleanup(midiFile);
               } else {
-                sendErrorMessage(`\`\`\`${output}\`\`\``, message);
+                const elapsed = prettyMilliseconds(performance.now() - now, {
+                  secondsDecimalDigits: 0,
+                });
+
+                if (existsSync(midiFile)) {
+                  message.channel.stopTyping(true);
+
+                  if (output) {
+                    message.replyEmbed({
+                      title: 'WARNINGS:',
+                      color: Math.floor(Math.random() * 0xffffff).toString(16),
+                      description: `\`\`\`${output}\`\`\``,
+                      footer: `Execution time: ${elapsed}`,
+                    });
+                    message.say({
+                      files: [midiFile],
+                    });
+                  } else {
+                    message
+                      .reply(`\n\nExecution time: ${elapsed}`, {
+                        files: [midiFile],
+                      })
+                      .then(() => {
+                        cleanup(file.path);
+                        cleanup(midiFile);
+                      });
+                  }
+                } else {
+                  sendErrorMessage(`\`\`\`${output}\`\`\``, message);
+                }
               }
-            }
+            });
           });
         })
 
