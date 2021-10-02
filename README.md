@@ -11,8 +11,8 @@
 3. Set your private Discord bot token and your bot prefix in the `.env` file.
 
 ```
-    DISCORD_TOKEN=[your secret token goes here]
-    prefix=[your prefix goes here]
+   DISCORD_TOKEN=[your secret token goes here]
+   PREFIX=[your prefix goes here]
 ```
 
 4. And then finally, run it!
