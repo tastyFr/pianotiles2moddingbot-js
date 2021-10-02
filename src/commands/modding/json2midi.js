@@ -77,9 +77,13 @@ module.exports = class Json2MidiCommand extends Command {
                 output = String(stdout);
 
                 if (error) {
+                  const noArgs
+                    = Array(args).length === 0
+                      ? '\n\nTry typing <bpm> <baseBeats> ... ...'
+                      : '';
                   errorMessage
                     = output.lastIndexOf('std::exception') > 0
-                      ? 'Couldn\'t convert into MIDI file!\n\nTry typing <bpm> <baseBeats> ... ...'
+                      ? `Couldn't convert into MIDI file! (std::exception)${noArgs}`
                       : getErrorMessage();
                 }
               },
