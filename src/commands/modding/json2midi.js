@@ -71,7 +71,7 @@ module.exports = class Json2MidiCommand extends Command {
                 'json2midi',
               ),
 
-              [file.path, ...args],
+              [file.path, ...args.split(' ')],
 
               (error, stdout) => {
                 output = String(stdout);
