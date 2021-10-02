@@ -1,12 +1,17 @@
 require('dotenv').config();
 
-const {readdirSync, unlinkSync} = require('fs');
+const {readdirSync, unlinkSync, existsSync, mkdirSync} = require('fs');
 
 const {join} = require('path');
 
 const {CommandoClient, FriendlyError} = require('discord.js-commando');
 
 const {keepAlive} = require('./server');
+
+// Creates a temp folder if not exists yet.
+if (!existsSync(join(__dirname, '..', 'temp'))) {
+  mkdirSync(join(__dirname, '..', 'temp'));
+}
 
 // Cleanup temporary files from a temp folder.
 readdirSync(join(__dirname, '..', 'temp')).forEach(file => unlinkSync(join(__dirname, '..', 'temp', file)));
