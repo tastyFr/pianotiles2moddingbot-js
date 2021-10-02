@@ -167,7 +167,7 @@ module.exports = class JSONInfoCommand extends Command {
                 baseBeats[0],
                 i >= 2,
               );
-              speeds.push((Number(bpm >>> 0) / baseBeats[0] / 60).toFixed(6));
+              speeds.push((+(bpm >>> 0) / baseBeats[0] / 60).toFixed(6));
 
               bpm = SongUtilities.getNewBPM(
                 bpm,
@@ -175,7 +175,7 @@ module.exports = class JSONInfoCommand extends Command {
                 baseBeats[1],
                 i >= 2,
               );
-              speeds.push((Number(bpm >>> 0) / baseBeats[1] / 60).toFixed(6));
+              speeds.push((+(bpm >>> 0) / baseBeats[1] / 60).toFixed(6));
 
               bpm = SongUtilities.getNewBPM(
                 bpm,
@@ -183,7 +183,7 @@ module.exports = class JSONInfoCommand extends Command {
                 baseBeats[2],
                 i >= 2,
               );
-              speeds.push((Number(bpm >>> 0) / baseBeats[2] / 60).toFixed(6));
+              speeds.push((+(bpm >>> 0) / baseBeats[2] / 60).toFixed(6));
 
               arrSpeeds.push(speeds);
               speeds = [];
