@@ -1337,7 +1337,7 @@ const parseJSON = (data, ...args) => {
                 .replace(/M/g, 'NN')
                 .replace(/N/g, 'OO')
                 .replace(/O/g, 'PP');
-              return (p.match(/P/g) || []).length;
+              return (p.match(/P/g) ?? []).length;
             }),
           ),
         );
@@ -1366,23 +1366,22 @@ const getNewBPM = (
   let int1 = 0;
   let int2 = currentBpm;
   f32[10] = currentBaseBeats;
-  f32[9] = Number(int2 >>> 0);
-  int1 = Number(f32[9]);
-  f32[8] = int1 / Number(f32[10]);
-  f32[7] = Number(f32[8]) - (reachedThreeCrowns ? 130 : 100);
-  f32[6] = Number(f32[7]) * Math.fround(0.001);
-  f32[5] = Math.fround(1.3) - Number(f32[6]);
-  f32[4] = Number(f32[8]) / 60;
-  int1
-    = Number(f32[5]) < Math.fround(1.04) ? Math.fround(1.04) : Number(f32[5]);
+  f32[9] = +(int2 >>> 0);
+  int1 = +f32[9];
+  f32[8] = int1 / +f32[10];
+  f32[7] = +f32[8] - (reachedThreeCrowns ? 130 : 100);
+  f32[6] = +f32[7] * Math.fround(0.001);
+  f32[5] = Math.fround(1.3) - +f32[6];
+  f32[4] = +f32[8] / 60;
+  int1 = +f32[5] < Math.fround(1.04) ? Math.fround(1.04) : +f32[5];
   f32[3] = int1;
-  int1 = Number(f32[4]);
-  f32[2] = int1 * Number(f32[3]);
-  f32[1] = Number(f32[2]) * 60;
-  f32[0] = Number(f32[1]) * nextBaseBeats;
-  int1 = Number(f32[0]);
+  int1 = +f32[4];
+  f32[2] = int1 * +f32[3];
+  f32[1] = +f32[2] * 60;
+  f32[0] = +f32[1] * nextBaseBeats;
+  int1 = +f32[0];
   int2 = ~~int1;
-  int1 = Number(int2 | 0);
+  int1 = +(int2 | 0);
   return int1;
 };
 
