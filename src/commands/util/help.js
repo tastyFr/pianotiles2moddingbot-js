@@ -26,7 +26,7 @@ module.exports = class HelpCommand extends Command {
 
   run(message, {command}) {
     const {commandPrefix} = message.guild;
-    const randomColor = Math.floor(Math.random() * 0xFFFFFF).toString(16);
+    const randomColor = Math.floor(Math.random() * 0xffffff).toString(16);
 
     if (!command) {
       const embed = new MessageEmbed()
