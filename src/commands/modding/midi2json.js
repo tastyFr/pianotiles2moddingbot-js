@@ -107,7 +107,7 @@ Either no reason or this command cannot process large MIDI file!\`\`\``
                 file.path,
                 args['Q tick'],
                 args['DT track'],
-                args['DT track'],
+                args['DT tick'],
                 args['IR track'],
               ],
 
