@@ -1,6 +1,7 @@
 const https = require('https');
 const {parse} = require('path');
 const {performance} = require('perf_hooks');
+const {MessageEmbed} = require('discord.js');
 const {Command} = require('discord.js-commando');
 const prettyMilliseconds = require('pretty-ms');
 const SongUtilities = require('../../features/SongUtilities');
@@ -216,90 +217,48 @@ module.exports = class JSONInfoCommand extends Command {
           message.channel.stopTyping(true);
 
           if (result.warnings) {
-            message.replyEmbed({
-              color: [255, 255, 0],
-              title: 'WARNINGS:',
-              description: result.warnings,
-            });
-          }
-
-          const embed = {
-            color: Math.floor(Math.random() * 0xffffff).toString(16),
-            fields: [
-              {
-                name: 'Title:',
-                value: songName,
-              },
-            ],
-          };
-
-          if (result.numberOfParts === 3) {
-            embed.color = diffColor;
-
-            const durationText = prettyMilliseconds(result.duration, {
-              secondsDecimalDigits: 0,
-            });
-
-            embed.fields.push(
-              {
-                name: 'Points per round:',
-                value: result.score,
-                inline: true,
-              },
-              {
-                name: '3-crown points:',
-                value: result.score * 3,
-                inline: true,
-              },
-              {
-                name: 'Duration:',
-                value: durationText,
-              },
-              {
-                name: 'Speeds:',
-                value: result.speeds.join(', '),
-              },
+            message.replyEmbed(
+              new MessageEmbed()
+                .setTitle('WARNINGS:')
+                .setColor('YELLOW')
+                .setDescription(result.warnings),
             );
-          }
-
-          embed.fields.push(
-            {
-              name: 'baseBeats:',
-              value: result.baseBeats.join(', '),
-              inline: true,
-            },
-            {
-              name: 'Tiles info:',
-              value: tilesInfo.join('\n'),
-            },
-          );
-
-          if (result.numberOfParts === 3) {
-            embed.color = diffColor;
-
-            embed.fields.push({
-              name: 'Calculated difficulty:',
-              value: `**${diff}**`,
-            });
-
-            embed.fields.push({
-              name: 'Difficulty rating based on calculation:',
-              value: `**${parseFloat(
-                ((diffNumber / 25) * 10).toFixed(1),
-              )} of 10**`,
-            });
           }
 
           const elapsed = prettyMilliseconds(performance.now() - now, {
             secondsDecimalDigits: 0,
           });
 
-          embed.footer = {
-            text: `Execution time: ${elapsed}`,
-          };
+          const embed = new MessageEmbed()
+            .setFooter(`Execution time: ${elapsed}`)
+            .addField('Title:', songName);
+
+          if (result.numberOfParts === 3) {
+            const durationText = prettyMilliseconds(result.duration, {
+              secondsDecimalDigits: 0,
+            });
+            embed
+              .setColor(diffColor)
+              .addField('Points per round:', result.score, true)
+              .addField('3-crown points:', result.score * 3, true)
+              .addField('Duration:', durationText)
+              .addField('Speeds:', result.speeds.join(', '));
+          }
+
+          embed
+            .addField('baseBeats:', result.baseBeats.join(', '))
+            .addField('Tiles info:', tilesInfo.join('\n'));
+
+          if (result.numberOfParts === 3) {
+            embed.addField('Calculated difficulty:', `**${diff}**`);
+            embed.addField(
+              'Difficulty rating:',
+              `**${parseFloat(((diffNumber / 25) * 10).toFixed(1))} of 10**`,
+            );
+          }
 
           if (result.warnings) {
-            message.say({embed});
+            message.say(embed);
           } else {
             message.replyEmbed(embed);
           }
