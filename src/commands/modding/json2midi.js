@@ -3,6 +3,7 @@ const {createWriteStream, existsSync, unlink} = require('fs');
 const https = require('https');
 const path = require('path');
 const {performance} = require('perf_hooks');
+const {MessageEmbed} = require('discord.js');
 const {Command} = require('discord.js-commando');
 const prettyMilliseconds = require('pretty-ms');
 
@@ -18,6 +19,15 @@ module.exports = class Json2MidiCommand extends Command {
 
 (Credits to **Volian0** for [json2midi](https://github.com/Volian0/json2midi) source code!)`,
       examples: ['pt2::json2midi *JSON File* <bpm> <baseBeats> ... ...'],
+      args: [
+        {
+          key: 'arguments',
+          prompt: 'type a valid arguments for json2midi.\n',
+          type: 'string',
+          infinite: true,
+          default: 'auto',
+        },
+      ],
     });
   }
 
@@ -71,7 +81,7 @@ module.exports = class Json2MidiCommand extends Command {
                 'json2midi',
               ),
 
-              [file.path, ...args.split(' ')],
+              [file.path, ...Object.values(args)],
 
               (error, stdout) => {
                 output = String(stdout);
@@ -107,12 +117,13 @@ module.exports = class Json2MidiCommand extends Command {
                   message.channel.stopTyping(true);
 
                   if (output) {
-                    message.replyEmbed({
-                      title: 'WARNINGS:',
-                      color: Math.floor(Math.random() * 0xffffff).toString(16),
-                      description: `\`\`\`${output}\`\`\``,
-                      footer: `Execution time: ${elapsed}`,
-                    });
+                    message.replyEmbed(
+                      new MessageEmbed()
+                        .setTitle('WARNINGS:')
+                        .setColor('YELLOW')
+                        .setDescription(`\`\`\`${output}\`\`\``)
+                        .setFooter(`Execution time: ${elapsed}`),
+                    );
                     message.say({
                       files: [midiFile],
                     });
