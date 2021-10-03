@@ -81,13 +81,13 @@ module.exports = class SpeedsCommand extends Command {
             speeds.push(i + 1 + 1);
 
             bpm = getNewBPM(bpm, baseBeats[2], baseBeats[0], i >= 2);
-            speeds.push((Number(bpm >>> 0) / baseBeats[0] / 60).toFixed(6));
+            speeds.push((+(bpm >>> 0) / baseBeats[0] / 60).toFixed(6));
 
             bpm = getNewBPM(bpm, baseBeats[0], baseBeats[1], i >= 2);
-            speeds.push((Number(bpm >>> 0) / baseBeats[1] / 60).toFixed(6));
+            speeds.push((+(bpm >>> 0) / baseBeats[1] / 60).toFixed(6));
 
             bpm = getNewBPM(bpm, baseBeats[1], baseBeats[2], i >= 2);
-            speeds.push((Number(bpm >>> 0) / baseBeats[2] / 60).toFixed(6));
+            speeds.push((+(bpm >>> 0) / baseBeats[2] / 60).toFixed(6));
 
             arrSpeeds.push(speeds);
             speeds = [];
