@@ -87,9 +87,9 @@ module.exports = class Midi2JsonCommand extends Command {
               output = output.split(/\r|\n/).filter(text => text);
               return (
                 output[output.length - 1]
-                || `\`\`\`Unknown error has occurred!
+                || `Unknown error has occurred!
 
-Either no reason or this command cannot process large MIDI file!\`\`\``
+Either no reason or this command cannot process large MIDI file!`
               );
             };
 
@@ -105,10 +105,10 @@ Either no reason or this command cannot process large MIDI file!\`\`\``
 
               [
                 file.path,
-                args['Q tick'],
-                args['DT track'],
-                args['DT tick'],
-                args['IR track'],
+                Object.values(args)[0],
+                Object.values(args)[1],
+                Object.values(args)[2],
+                Object.values(args)[3],
               ],
 
               (error, stdout) => {
@@ -119,7 +119,7 @@ Either no reason or this command cannot process large MIDI file!\`\`\``
                 }
               },
             ).on('close', () => {
-              const newName = `Generated_${Date.now()}.txt`;
+              const newName = `Log_${Date.now()}.txt`;
 
               if (existsSync('log.txt')) {
                 renameSync('log.txt', newName);
