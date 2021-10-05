@@ -29,25 +29,25 @@ module.exports = class Midi2JsonCommand extends Command {
         {
           key: 'Q tick',
           prompt: 'type the MIDI tick value for Q.\n',
-          type: 'float',
+          type: 'integer',
         },
         {
           key: 'DT track',
           prompt:
             'type the track number to put double tiles on. Type `0` to disable.\n',
-          type: 'float',
+          type: 'integer',
         },
         {
           key: 'DT tick',
           prompt:
             'type the MIDI tick value for double tiles. Type `0` to disable.\n',
-          type: 'float',
+          type: 'integer',
         },
         {
           key: 'IR track',
           prompt:
             'type the MIDI track number to disable rests on. Type `0` to disable.\n',
-          type: 'float',
+          type: 'integer',
         },
       ],
     });
