@@ -56,7 +56,7 @@ module.exports = class HelpCommand extends Command {
       .addField('Category:', command.group.name)
       .addField('Usage:', `\`${commandPrefix}${command.name}\``);
 
-    if (command.aliases && command.aliases.length > 0) {
+    if (command.aliases?.length > 0) {
       const commandAliasesText = command.aliases
         .map(alias => `\`${alias}\``)
         .join(', ');
@@ -64,7 +64,7 @@ module.exports = class HelpCommand extends Command {
       embed.addField('Aliases:', commandAliasesText);
     }
 
-    if (command.examples && command.examples.length > 0) {
+    if (command.examples?.length > 0) {
       const examplesText = command.examples
         .map(example => `\`${example}\``)
         .join(', ');
@@ -72,7 +72,7 @@ module.exports = class HelpCommand extends Command {
       embed.addField('Examples:', examplesText);
     }
 
-    if (command.clientPermissions && command.clientPermissions.length > 0) {
+    if (command.clientPermissions?.length > 0) {
       const commandPermsText = command.clientPermissions
         .map(perm => `\`${perm}\``)
         .join(', ');
